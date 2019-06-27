@@ -1,0 +1,68 @@
+Steps to set up a pipeline
+
+1.Create 3 EC2 instances and attach a suitable IAM role to them so that instances will get rights to access any S3 bucket.
+2.Connect to those instances using mobaxterm. Among these 3 instances, one is going to be master and another is going to be slave.
+3.Install git, jenkins, java (latest versions) on each of them.
+4.Using public IP address of master open <ipaddress>:8080 in browser and create account for jenkins. Install all the packages suggested by default.
+5.Create two nodes in jenkins and configure each of them according to the slave instances.
+6.These two newly created nodes will now represent slave nodes on jenkins.
+7.To connect slaves to their master:
+   a)Generate a private key for each slave using required commands.
+   b)Supply this private keys to the master and check that accessible hosts have the IPs of slave
+   c)Now master is connected with its two slaves, get it confirmed by visting at jenkins which will show all the three nodes created.
+8.To create a pipeline which will take files from git repository and will deliver it to s3 bucket
+  a) create files do commit and push action to your git repository
+  b) In jenkings go to new item, give it the form of pipeline and enter required fields such as git repository url, build triggers, pipeline definitions etc.
+  c) In build trigger option, select GitHub hook trigger for GITScm polling for having a new build at each time whenever any new commits are pushed to the repository.
+  d) In pipeline definition either write definition to the space given or include the code file in repostiroy only and suplly details of the same.
+9. Create S3 bucket and make access public.
+10. Now go to the manage jenkins->manage plugins.
+11. Install the plugins required to configure jenkins with git and s3 bucket.
+12. Go to manage jenkins-> configure systems->add profiles and add suitable s3 profile to it.
+13. Below shown is the required pipeline script to perform the action.
+14. Once the files have been fetched to the jenkins from git, they reside in the workspace and we are required to give the name of the files which we are supposed to upload on s3.
+15. Supply all these required parameters to the s3upload function in the below described code.
+ Pipeline definition :
+          pipeline {
+    agent any
+    stages
+    {
+        stage('checkout from Git')
+    {
+        steps{
+            echo "Checking out from git"
+        
+        }
+    }
+        
+    stage('Building')
+    {
+        steps{
+        echo 'This is the build stage'
+        }
+        
+    }
+    stage('At Jenkins')
+    {
+        steps{
+            echo "At jenkins now"
+        }
+    }
+    stage('AT s3')
+    {
+    steps{
+   s3Upload(consoleLogLevel: 'INFO', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'ns-jenkins-bucket', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: 'jenkins', storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'ns-jenkins-bucket', userMetadata: [])
+}
+    }
+}
+}
+
+the above code has been used in order to build the pipeline.
+s3 upload function is defined with required arguments so as to upload the fetched files to s3 bucket.
+
+16.Check the status of pipeline, solve the errors if any.
+17. Go to s3 bucket and look for the file which you have uploaded.
+18. In case any error arises, go to the console output for that particular build and get the error described there.
+ 
+   
+   
