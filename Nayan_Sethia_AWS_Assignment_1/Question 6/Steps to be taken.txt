@@ -1,0 +1,6 @@
+Following are the steps to be taken to achieve it.
+
+1. Instead of applying policy for an all the individual freelancers, I will create two groups, one for regular employess in a project and one for freelancers giving them corresponding tags.
+2. Now I will give the condition in my code that if tag matches to frelancers then services will be allowed only when ther source ip for the aws is my network's ip, this happens as when any user is going to access the aws, aws will
+   get its source ip as the network's ip because the request has been originated from it.
+3. The regular employees with the tags regular will not be applied with this condition and they will be able to access aws even if they are not within the network.

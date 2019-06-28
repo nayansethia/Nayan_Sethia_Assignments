@@ -1,0 +1,8 @@
+#to copy a table from dynamodb to redshift
+
+
+copy ns-aws-games
+from from 'dynamodb://allgames' credentials 
+iam_role 'arn:aws:iam::488599217855:role/role_for_redshift';
+
+

@@ -1,0 +1,28 @@
+Here are the steps which I have followed for the completion of question 1:
+
+To install Apache server and getting the desired webpage:
+
+1. Connect to the EC2 instance and make sure that port 80 is open for the inbound rules. and run the following commands to install apache:
+   sudo yum udate -y               ---->  To update the packages
+   sudo yum install -y httpd       ---->  To install the apache
+   sudo service httpd start        ---->  To start the httpd
+   sudo chkconfig httpd on         ----> To check the installation
+2. Create index.html file in /var/www/html directory which is used as a root directory by the apache server
+3. Go to the browser and type <public_ip_of_instance>:80
+4. We will se the desired content on web page.
+
+To Create Snapshot of the instance 
+
+1. In the Elastic block storage column select snapshot
+2. Create a new snapshot by instance and specify instance id and description over there.
+3. click on create and get snapshot created.
+
+To copy the snapshot 
+
+1. select the snapshot and then go to the actions
+2. in actions, select copy and specify the destination region and description
+3. select copy and get the snapshot copied in the destination region
+
+To launch the instance in the new region
+1. Create an image using the coipied snapshot and launch an instance using that image.
+

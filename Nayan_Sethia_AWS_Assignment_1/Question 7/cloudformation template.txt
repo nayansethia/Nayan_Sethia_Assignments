@@ -1,0 +1,133 @@
+#to define a policy that allows an ec2 instance to access s3 resources
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",                                 #to declare the version of template
+  "Description" : "Attach IAM Role to an EC2",                               #description of the policy
+  "Parameters" : {                                                           #setting of parameters and declaration
+    "KeyName" : {                                                            #keyName parameters include description about the key and information about key-pair        
+      "Description" : "EC2 Instance SSH Key",
+      "Type" : "AWS::EC2::KeyPair::KeyName"
+    },
+    "InstanceType" : {                                                       #second parameter in this is the Instance type
+      "Description" : "EC2 instance specs configuration",                    #description about the type of instance
+      "Type" : "String",                                                      
+      "Default" : "t2.micro",                                                #by default instance will be created as t2.micro type
+      "AllowedValues" : ["t2.micro"]                                         #the only allowed type is t2.micro
+    }
+  },
+  "Mappings" : {                                                             #the third parameter is the mappings
+    "AMIs" : {                                                               #In mappings the first mappoing is done with The AMI
+      "us-east-1" : {                                                        #the region and the name is specified, we are using the pre created AMI
+        "Name" : "ami-8c1be5f6"
+      }
+    }
+  },
+  "Resources" : {                                                           #the fourth parameter is the resources, on which the policy is going to be applied
+    "ns-aws-q7" : {
+      "Type" : "AWS::EC2::Instance",                                        #type of the resource, here it is ec2 instance
+      "Properties" : {                                                      #properties of the declared resource 
+        "InstanceType" : {
+          "Ref" : "InstanceType"                                            #first property is the instance type
+        },
+        "ImageId" : {                                                       #second property is the image id whcih is defined already                                                   
+          "Fn::FindInMap" : [
+            "AMIs",
+            {
+              "Ref" : "AWS::Region"
+            },
+            "Name"
+          ]
+        },
+        "KeyName" : {                                                      #the third property is the key, which is defined above
+          "Ref" : "KeyName"
+        },
+        "IamInstanceProfile" : {                                          #fourth property is the IAM policy we are taking reference of nsIAMrole defined below in this code
+          "Ref" : "nsIAMrole"
+        },
+        "SecurityGroupIds" : [                                            #the fifth property for the resource is the security group which is defined in the below part of this code                                               
+          {
+            "Ref" : "nsAccessSSH"
+          }
+        ],
+        "Tags" : [                                                       # sixth property for the resource is the list of tags we want to assign
+          {
+            "Key" : "Name",
+            "Value" : "ns-aws-q7"
+          }
+        ]
+      }
+    },
+    "nsAccessSSH" : {                                                   #the definition of nsAccessSSH security group      
+      "Type" : "AWS::EC2::SecurityGroup",                               # type of the parameter
+      "Properties" : {                                                  #properties block for the security group
+        "GroupDescription" : "To allow the access of SSH",              #description of the group   
+        "SecurityGroupIngress" : [                                      #list of inbound rules attached, here only 1 rule to allow ssh access from anywhere
+          {
+            "FromPort" : "22",
+            "ToPort" : "22",
+            "IpProtocol" : "tcp",
+            "CidrIp" : "0.0.0.0/0"
+          }
+        ],
+        "Tags" : [                                                    #another property is the tag for the security group, here we have defined name as nsAccessSSH
+          {
+            "Key" : "Name",
+            "Value" : "nsAccessSSH"
+          }
+        ]
+      }
+    },
+    "nsIAMrole" : {                                                 #definition of the IAM role want to attach
+      "Type" : "AWS::IAM::InstanceProfile",                         #type of the parameter is the IAM role
+      "Properties" : {                                              #properties defined
+        "Path" : "/",                                               #first property is path                        
+        "Roles" : [                                                 #second property is the list of roles
+          {
+            "Ref" : "ListS3BucketsRole"                             #here we have defined a role so that ec2 can access s3
+          }
+        ]
+      }
+},
+    "ListS3BucketsPolicy" : {                                       #to define the bucket policy
+      "Type" : "AWS::IAM::Policy",                                
+      "Properties" : {
+        "PolicyName" : "ListS3BucketsPolicy",                       #name of the policy
+        "PolicyDocument" : {                                     
+          "Statement" : [
+            {
+              "Effect" : "Allow",                                  #to allow for the certain action defined in the next line
+              "Action" : [                                         #action is to access the s3 bucket  
+                "s3:List*"
+              ],
+              "Resource" : "*"                                     #all the resources of s3 bucket can be accessed
+            }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "ListS3BucketsRole"                            #to define the list of roles for this policy
+          }
+        ]
+      }
+    },
+    "ListS3BucketsRole" : {                                       #definition of the role for s3 bucket policy
+      "Type" : "AWS::IAM::Role",                                  #type of the role
+      "Properties" : {                                            #properties 
+        "AssumeRolePolicyDocument": {                             
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",                                #to allow for the principal i.e to whom this is applied to, here ec2 instance service
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"                                          #path for the same
+      }
+    }
+  }
+}            #the plociy has been created which allows instance ns-aws-q7 to access the s3 services.

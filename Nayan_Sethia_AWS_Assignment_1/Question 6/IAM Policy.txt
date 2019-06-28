@@ -1,0 +1,29 @@
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": "iam:*",                    #iam role for all services
+    "Resource": "*",                      # for all the resources
+    "Condition": {
+       {"Tag":"freelancers"
+      "IpAddress": {                      #Ip address of my organisation will now act as a source ip and if they are connected to it only then they can access services.
+        "aws:SourceIp": [
+          <ip of my organisation's network>
+        ]
+      }
+      }
+    }
+   "Effect": "Allow",
+    "Action": "iam:*",                    #iam role for all services
+    "Resource": "*",                      #to my regular employees
+    "Condition": {
+       {"Tag":"regular"
+      
+      }
+      }
+    }
+
+
+
+  }
+}

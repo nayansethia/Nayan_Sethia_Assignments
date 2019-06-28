@@ -1,0 +1,27 @@
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Effect":"Allow",              #to allow
+         "Principal":"*"                #principal means to whom this policy applies to, here it applies to all
+         "Action":["s3:GetObject"],     # all anonymous users can retrieve object from ns-jenkins-bucket
+         "Resource":"arn:aws:s3:::ns-jenkins-bucket/*"
+      }
+
+      {
+        "Effect":"Deny",              #to restrict
+                                      # "Not Principal":"<my_iam_user_info>" should come here but I don't have access to IAM policy that is why leaving that statement
+         "Action":"s3:*",
+         "Resource":"arn:aws:s3:::ns-jenkins-bucket/Secret_Folder"
+
+      }
+
+     {  "Effect":"Allow",             #to allow
+                                      # "Not Principal":"<root_user_info>" should come here but I don't have access to IAM policy that is why leaving that statement
+        "Action":["s3:GetObject","s3:PutObject"]   #to allow only retrieving and putting the object for root user
+        "Resource":"arn:aws:s3:::ns-jenkins-bucket/*"  #applies to all objects of this bucket
+
+    }
+
+   ]
+}
