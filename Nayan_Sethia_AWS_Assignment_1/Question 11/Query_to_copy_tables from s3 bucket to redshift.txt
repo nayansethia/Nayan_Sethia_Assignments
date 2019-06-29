@@ -3,6 +3,6 @@
 
 copy id
 from 's3://ns-jenkins-bucket/emp.csv' credentials 
-iam_role 'arn:aws:iam::488599217855:role/role_for_redshift';
+iam_role 'arn:aws:iam::123456789012:role/role_for_redshift';
 
 
