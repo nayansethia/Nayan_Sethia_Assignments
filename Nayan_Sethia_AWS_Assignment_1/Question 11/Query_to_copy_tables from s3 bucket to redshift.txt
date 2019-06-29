@@ -1,8 +1,0 @@
-# to copy ns-aws-games table from s3 to redshift
-
-
-copy id
-from 's3://ns-jenkins-bucket/emp.csv' credentials 
-iam_role 'arn:aws:iam::123456789012:role/role_for_redshift';
-
-
